@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS LibDB.Client (
     ClientLastName VARCHAR(20) CHARACTER SET utf8,
     ClientDOB INT,
     Occupation VARCHAR(26) CHARACTER SET utf8
-    PRIMARY KEY (ClientID)
 );
 INSERT INTO LibDB.Client (ClientID, ClientFirstName, ClientLastName, ClientDOB, Occupation) VALUES 
     (1,'Kaiden','Hill',2006,'Student'),
@@ -95,9 +94,6 @@ CREATE TABLE IF NOT EXISTS LibDB.Borrower (
     ClientID INT,
     BookID INT,
     BorrowDate DATE
-    PRIMARY KEY (BorrowID)
-    FOREIGN KEY (ClientID) REFERENCES Client(ClientID)
-    FOREIGN KEY (BookID) REFERENCES Book(BookID)
 );
 INSERT INTO LibDB.Borrower (BorrowID, ClientID, BookID, BorrowDate) VALUES 
     (1,35,17,'2016-07-20'),
@@ -406,8 +402,6 @@ CREATE TABLE IF NOT EXISTS LibDB.Book (
     BookTitle VARCHAR(30) CHARACTER SET utf8,
     AuthorID INT,
     Genre VARCHAR(10) CHARACTER SET utf8
-    PRIMARY KEY (BookID)
-    FOREIGN KEY (AuthorID) REFERENCES Author(AuthorID)
 );
 INSERT INTO LibDB.Book (BookID, BookTitle, AuthorID, Genre) VALUES 
     (1,'Build your database system',1,'Science'),
@@ -448,7 +442,6 @@ CREATE TABLE IF NOT EXISTS LibDB.Author (
     AuthorFirstName VARCHAR(9) CHARACTER SET utf8,
     AuthorLastName VARCHAR(8) CHARACTER SET utf8,
     AuthorNationality VARCHAR(13) CHARACTER SET utf8
-    PRIMARY KEY (AutorID)
 );
 INSERT INTO LibDB.Author (AuthorID, AuthorFirstName, AuthorLastName, AuthorNationality) VALUES 
     (1,'Sofia','Smith','Canada'),
