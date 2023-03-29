@@ -82,24 +82,47 @@ WHERE Borrower.ClientID = Client.ClientID
 GROUP BY Occupation
 ORDER BY BookCount DESC;
 
+-- 9.
+SELECT AVG(b.counter) average_count, Occupation C
+FROM LibDB.Client C JOIN 
+  (SELECT ClientId, COUNT(*) counter FROM Borrower
+  GROUP BY ClientId) b ON b.ClientId = c.ClientId
+GROUP BY Occupation;
+
 -- 10. Create a VIEW and display the titles that were borrowed by at least 20% of clients
 CREATE VIEW TitleView
 
+-- 10. 
+SELECT Book.BookTitle, COUNT(Book.BookId)
+FROM Book JOIN Borrower ON Book.BookId = Borrower.BookId
+JOIN Client ON Borrower.ClientId = Client.ClientId 
+GROUP BY Book.BookTitle
+HAVING COUNT(Book.BookId) > 
+(SELECT COUNT(Client.ClientId) FROM Client)*0.2
+ORDER BY COUNT(Book.BookTitle) DESC;
 
 -- 11. The top month of borrows in 2017
-SELECT COUNT(MONTH(BorrowDate)) AS MonthCount
-FROM Borrower WHERE YEAR(BorrowDate) = 2017
-GROUP BY BorrowDate
-ORDER BY MonthCount
+SELECT COUNT(*) AS MonthCount, YEAR(BorrowDate), MONTH(BorrowDate)
+FROM LibDB.Borrower WHERE YEAR(BorrowDate) = 2017
+GROUP BY YEAR(BorrowDate), MONTH(BorrowDate)
+ORDER BY MonthCount DESC
 LIMIT 1;
 
 -- 12. Average number of borrows by age
-
+SELECT AVG(b.counter) AverageBorrowByAge, ClientDoB C
+FROM LibDB.Client C INNER JOIN 
+  (SELECT ClientId, COUNT(*) counter FROM Borrower
+  GROUP BY ClientId) b ON b.ClientId = c.ClientId
+GROUP BY ClientDoB;
 
 -- 13. The oldest and the youngest clients of the library
-SELECT MAX(DATEDIFF(ClientDOB, CURRENT_DATE)) AS MaxAge, MIN(DATEDIFF(ClientDOB, CURRENT_DATE)) AS MinAge, ClientFirstName, ClientLastName, Client.Client.ID 
-GROUP BY ClientFirstName, CientLastName
-FROM Client;
+SELECT MAX(ClientDoB) AS MaxAge, MIN(ClientDob) AS MinAge, ClientFirstName, ClientLastName, Client.Client.ID FROM LibDB.Client
+GROUP BY ClientFirstName, CientLastName;
 
 -- 14. First and last names of authors that wrote books in more than one genre
+SELECT AuthorFirstName, AuthorLastName, Genre
+FROM LibDB.Book WHERE AuthorID IN 
+  (SELECT Book.AuthorID FROM LibDB.Book JOIN 
+  LibDB.Author ON Book.AuthorID = Author.AuthorID
+  WHERE COUNT(Genre) > 1);
 
