@@ -75,16 +75,15 @@ LIMIT 5;
 -- We specifically looked for records that the borrowdate year was 2017, then grouped by Occupation, and ordered by the bookID count in Desceding order.
 -- Finally limited the query results to 5 to only show the top 5 occupations.
 
-
----- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 -- 9. Average number of borrowed books by job title
 SELECT AVG(b.counter) average_count, Occupation C
 FROM LibDB.Client C JOIN 
   (SELECT ClientId, COUNT(*) counter FROM LibDb.Borrower
   GROUP BY ClientId) b ON b.ClientId = c.ClientId
 GROUP BY Occupation;
---
+-- First selected an average on the inner select, and the occupation because the contraint for this problem is the clients occupation
+-- I then joined the client table to the borrower table which held a count, linking them by the ClientID key located in both the Client and borrower tables
+-- Finally grouped by occupation
 
 -- 10. Create a VIEW and display the titles that were borrowed by at least 20% of clients 
 CREATE VIEW LibDB.TitleView AS
@@ -95,7 +94,9 @@ GROUP BY BookTitle
 HAVING COUNT(Book.BookId) > 
 (SELECT COUNT(Client.ClientId) FROM LibDB.Client)*0.2
 ORDER BY COUNT(Book.BookTitle) DESC;
---
+-- First a view called TitleView was created, inside of the view a count was selected. I joined the Book and Borrower table using the key "BookID" and then joined the Client table on
+-- the Borrower table using the "ClientID" key. Due to this query containing an aggregate function, I was not able to use a WHERE clause, thus a HAVING clause was used. The condition was
+-- set as long as more than 20% of clients borrowed the specific BookID in the Book Table, they would be counted and ordered to display in descending order to see the highest first.
 
 -- 11. The top month of borrows in 2017
 SELECT COUNT(*) AS BorrowCount, MONTH(BorrowDate) AS BorrowMonth, YEAR(BorrowDate) AS BorrowYear
@@ -103,7 +104,9 @@ FROM LibDB.Borrower WHERE YEAR(BorrowDate) = 2017
 GROUP BY BorrowMonth, BorrowYear
 ORDER BY BorrowCount DESC
 LIMIT 1;
---
+-- A count was selected as well as each of the months and years located in the BorrowDate field of the Borrower table. A conditional was created requiring the year to be 2017, and then 
+-- The results were ordered in descending order to show the results in highest to lowest, which were then limited to 1 to only show the top result, which in this case was
+-- the top month of borrows in 2017
 
 -- 12. Average number of borrows by age
 SELECT AVG(b.counter) AS AverageBorrowByAge, ClientDoB BirthYear
@@ -111,15 +114,19 @@ FROM LibDB.Client C JOIN
   (SELECT ClientId, COUNT(*) counter FROM LibDB.Borrower
   GROUP BY ClientId) b ON b.ClientId = c.ClientId
 GROUP BY ClientDoB;
---
+-- An average is selected that gets the count from an inner select. The client table is joined on the borrower table in this case on the clientID key and is then grouped by Client DoB.
+-- This allowed me to grab the average of the counts found in the inner select
 
 -- 13. The oldest and the youngest clients of the library
-SELECT ClientDoB AS ClientAge, ClientFirstName, ClientLastName, Client.ClientID 
+SELECT COUNT(*) MaxMin, ClientDoB AS ClientAge, ClientFirstName, ClientLastName, Client.ClientID 
 FROM LibDB.Client WHERE 2023 - ClientDoB = (select max(2023 - ClientDoB) from LibDB.Client)
 OR 2023 - ClientDoB = (select min(2023 - ClientDoB) from LibDB.Client)
 GROUP BY ClientFirstName, ClientLastName, Client.ClientID
-ORDER BY ClientAge; 
---
+ORDER BY ClientAge 
+LIMIT 10;
+-- Several fields are selected then an inner select is created using the client table and ClientDoB field, which selects the max (highest number) of all the results from the ClientDoB after
+-- the Clients dob are subtracted from 2023 inside of the client table. Then the same is done but with the minimum condition which finds the lowest number of 2023 - ClientDoB.
+-- The results are grouped and then ordered by an alias of the dob.
 
 -- 14. First and last names of authors that wrote books in more than one genre
 SELECT AuthorFirstName, AuthorLastName, Genre
@@ -132,5 +139,4 @@ SELECT AuthorFirstName, AuthorLastName, Genre
 FROM LibDB.Book JOIN LibDB.Author WHERE Book.AuthorID = Author.AuthorID;
 
 -- I changed Book ID 14 With author ID 1 to A genre of Fiction, Need to change the Genre back to Science Later
-
-
+-- 
